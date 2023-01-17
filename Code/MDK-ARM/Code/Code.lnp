@@ -25,7 +25,8 @@
 "code\system_stm32f4xx.o"
 "code\uartdriver.o"
 "code\dome.o"
---strict --scatter "Code\Code.sct"
+"code\statemachine.o"
+--library_type=microlib --strict --scatter "Code\Code.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "Code.map" -o Code\Code.axf
