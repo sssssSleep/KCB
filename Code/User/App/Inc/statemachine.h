@@ -8,8 +8,14 @@
 #define TASK_3_TIME 10
 #define TASK_4_TIME 10
 
-#define FIRST_TASK  TASK_1
-#define LAST_TASK	 TASK_5
+#define DELAY_NUM   						20				//任务延时最大个数
+#define FIRST_TASK  						TASK_1 		//第一个任务
+#define LAST_TASK	 							TASK_5  	//最后一个任务
+#define PACKET_UPDATE_INTERVAL 	200   		//数据包更新间隔（ms）
+#define PACKET_SEND_INTERVAL		500				//数据包发送间隔（ms）
+//任务延迟宏，一个任务仅能拥有一个，放在最开始，作为间隔运行，等待时间会切换到别的任务
+#define TaskDelay_ms(x) if(DelayMs(x,taskid)) return;	
+//状态枚举
 enum state
 {
 	TASK_1,
@@ -18,6 +24,15 @@ enum state
 	TASK_4,
 	TASK_5,
 };
+//状态机循环体
 void loop(void);
-void task1(void);
+//任务 任务ID是为了记录任务延时宏
+void task1(uint16_t taskid);
+void task2(uint16_t taskid);
+void task3(uint16_t taskid);
+void task4(uint16_t taskid);
+void task5(uint16_t taskid);
+
+//任务延时函数
+uint8_t DelayMs(uint32_t ms , uint16_t taskid);
 #endif  
