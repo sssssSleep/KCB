@@ -21,7 +21,7 @@
 #include "dma.h"
 #include "usart.h"
 #include "gpio.h"
-#include "UartDriver.h"
+#include "statemachine.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -99,8 +99,7 @@ int main(void)
   {
 		
     /* USER CODE END WHILE */
-			fly();
-		while (1);
+			loop();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
