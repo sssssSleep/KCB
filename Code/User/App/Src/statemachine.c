@@ -10,6 +10,8 @@ static enum state state = TASK_1;//创建枚举变量
 static uint32_t ltime = 0;	//状态机时钟
 static uint8_t fly_flag = 0;//起飞标志位
 static uint32_t delay_list[DELAY_NUM][3] = { {0} };//任务延时表（可改为结构体数组）
+static MPU_data mpudata;
+
 //注释格式
 /***************************************************
 *@brief:  更新时间																				 
@@ -63,33 +65,42 @@ uint32_t GetIntervalTime()
 ****************************************************/
 void loop()
 {
-	UpdateTime();
-	switch(state)
+	//Init
+	MPU_Init();
+  printf("\r\n%d\r\n", mpu_dmp_init());
+	//start
+	while(1)
 	{
-		case TASK_1:
-					UpdateTime();
-					task1(0x11);
-					UpdateState();
-					break;
-		case TASK_2:
-					UpdateTime();
-					task2(0x22);
-					UpdateState();
-					break;
-		case TASK_3:
-					UpdateTime();
-					task3(0x33);
-					UpdateState();
-					break;
-		case TASK_4:
-					UpdateTime();
-					UpdateState();
-					break;	
-		case TASK_5:
-					UpdateTime();
-					UpdateState();
-					break;	
-	
+		UpdateTime();
+		switch(state)
+		{
+			case TASK_1:
+						UpdateTime();
+						task1(0x11);
+						UpdateState();
+						break;
+			case TASK_2:
+						UpdateTime();
+						task2(0x22);
+						UpdateState();
+						break;
+			case TASK_3:
+						UpdateTime();
+						task3(0x33);
+						UpdateState();
+						break;
+			case TASK_4:
+						UpdateTime();
+						task4(0x44);
+						UpdateState();
+						break;	
+			case TASK_5:
+						UpdateTime();
+						task5(0x55);
+						UpdateState();
+						break;	
+		
+		}
 	}
 }
 /***************************************************
@@ -131,6 +142,32 @@ void task3(uint16_t taskid)
 	WriteThrottle_SD(0x80);
 	WritePitch_SD(0x82);
 	WriteRoll_SD(0x78);
+}
+/***************************************************
+*@brief:  任务四																				 
+*@param:  taskid： 任务id                                      
+*@retval: 无                                     
+*@author: 梁辉强 2023.1.17                                        
+****************************************************/
+void task4(uint16_t taskid)
+{
+	TaskDelay_ms(500);
+	Update_MPU_Data();
+	mpudata = Get_MPU_Data();
+}
+
+ /***************************************************
+*@brief:  任务五																				 
+*@param:  taskid： 任务id                                      
+*@retval: 无                                     
+*@author: 梁辉强 2023.1.17                                        
+****************************************************/
+void task5(uint16_t taskid)
+{
+	TaskDelay_ms(900);
+	printf("pitch = %f  roll = %f  yaw = %f\r\n",mpudata.pitch,mpudata.roll,mpudata.yaw);
+	printf("ax    = %d  ay   = %d  az  = %d\r\n",mpudata.ax,mpudata.ay,mpudata.az);
+	printf("temp  = %d \r\n",mpudata.temp);
 }
 /***************************************************
 *@brief:  任务延时函数																				 

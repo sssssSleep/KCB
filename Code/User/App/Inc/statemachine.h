@@ -2,6 +2,8 @@
 #define __STATEMACHINE_H
 
 #include "UartDriver.h"
+#include "mpu6050.h"
+#include <stdio.h>
 
 #define TASK_1_TIME 10
 #define TASK_2_TIME 10
