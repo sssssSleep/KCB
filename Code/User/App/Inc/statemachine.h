@@ -2,6 +2,9 @@
 #define __STATEMACHINE_H
 
 #include "UartDriver.h"
+#include "mpu6050.h"
+#include "opticalflow.h"
+#include <stdio.h>
 
 #define TASK_1_TIME 10
 #define TASK_2_TIME 10
@@ -10,7 +13,7 @@
 
 #define DELAY_NUM   						20				//任务延时最大个数
 #define FIRST_TASK  						TASK_1 		//第一个任务
-#define LAST_TASK	 							TASK_5  	//最后一个任务
+#define LAST_TASK	 						TASK_6   	//最后一个任务
 #define PACKET_UPDATE_INTERVAL 	200   		//数据包更新间隔（ms）
 #define PACKET_SEND_INTERVAL		500				//数据包发送间隔（ms）
 //任务延迟宏，一个任务仅能拥有一个，放在最开始，作为间隔运行，等待时间会切换到别的任务
@@ -23,6 +26,7 @@ enum state
 	TASK_3,
 	TASK_4,
 	TASK_5,
+	TASK_6,
 };
 //状态机循环体
 void loop(void);
@@ -32,7 +36,7 @@ void task2(uint16_t taskid);
 void task3(uint16_t taskid);
 void task4(uint16_t taskid);
 void task5(uint16_t taskid);
-
+void task6(uint16_t taskid);
 //任务延时函数
 uint8_t DelayMs(uint32_t ms , uint16_t taskid);
 #endif  
