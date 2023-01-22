@@ -11,7 +11,7 @@ static uint32_t ltime = 0;	//状态机时钟
 static uint8_t fly_flag = 0;//起飞标志位
 static uint32_t delay_list[DELAY_NUM][3] = { {0} };//任务延时表（可改为结构体数组）
 static MPU_data mpudata;
-
+static OPT_Data optdata;
 //注释格式
 /***************************************************
 *@brief:  更新时间																				 
@@ -68,6 +68,8 @@ void loop()
 	//Init
 	MPU_Init();
   printf("\r\n%d\r\n", mpu_dmp_init());
+	Opt_init();
+	//HAL_Delay(5000);
 	//start
 	while(1)
 	{
@@ -98,7 +100,12 @@ void loop()
 						UpdateTime();
 						task5(0x55);
 						UpdateState();
-						break;	
+						break;
+			case TASK_6:
+						UpdateTime();
+						task6(0x66);
+						UpdateState();
+						break;				
 		
 		}
 	}
@@ -144,20 +151,20 @@ void task3(uint16_t taskid)
 	WriteRoll_SD(0x78);
 }
 /***************************************************
-*@brief:  任务四																				 
+*@brief:  任务四	更新mpu信息																			 
 *@param:  taskid： 任务id                                      
 *@retval: 无                                     
 *@author: 梁辉强 2023.1.17                                        
 ****************************************************/
 void task4(uint16_t taskid)
 {
-	TaskDelay_ms(500);
+	TaskDelay_ms(20);
 	Update_MPU_Data();
 	mpudata = Get_MPU_Data();
 }
 
  /***************************************************
-*@brief:  任务五																				 
+*@brief:  任务五	打印调试信息																			 
 *@param:  taskid： 任务id                                      
 *@retval: 无                                     
 *@author: 梁辉强 2023.1.17                                        
@@ -168,6 +175,19 @@ void task5(uint16_t taskid)
 	printf("pitch = %f  roll = %f  yaw = %f\r\n",mpudata.pitch,mpudata.roll,mpudata.yaw);
 	printf("ax    = %d  ay   = %d  az  = %d\r\n",mpudata.ax,mpudata.ay,mpudata.az);
 	printf("temp  = %d \r\n",mpudata.temp);
+	printf("vy = : %d  vx = : %d  qual = : %d\r\n",optdata.vy,optdata.vx,optdata.qual);
+}
+ /***************************************************
+*@brief:  任务六																				 
+*@param:  taskid： 任务id                                      
+*@retval: 无                                     
+*@author: 梁辉强 2023.1.17                                        
+****************************************************/
+void task6(uint16_t taskid)
+{
+	TaskDelay_ms(20);
+	UpdateOptData();
+	optdata = Get_Opt_Data();
 }
 /***************************************************
 *@brief:  任务延时函数																				 
@@ -199,14 +219,14 @@ uint8_t DelayMs(uint32_t ms , uint16_t taskid)
 				delay_list[i][1] = ms;
 				delay_list[i][2] = HAL_GetTick();//获取延时开始时刻
 				listnum = i;
-				exist_flag = 1;
 				break;
 			}
 		}
 	}
-	if(HAL_GetTick()-delay_list[listnum][2] >= ms)//判断时间间隔是否达到延时时间
+	if(HAL_GetTick()-delay_list[listnum][2] >= delay_list[listnum][1])//判断时间间隔是否达到延时时间
 	{
-		delay_list[listnum][0] = 0;//释放任务延时
+		//delay_list[listnum][0] = 0;//释放任务延时
+		delay_list[listnum][2] = HAL_GetTick();//循环
 		return 0 ;//结束延时中
 	}
 	else

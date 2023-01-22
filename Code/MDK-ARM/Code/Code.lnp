@@ -29,6 +29,7 @@
 "code\system_stm32f4xx.o"
 "code\uartdriver.o"
 "code\dome.o"
+"code\opticalflow.o"
 "code\statemachine.o"
 "code\delay.o"
 "code\print.o"

@@ -757,6 +757,11 @@
               <FileType>5</FileType>
               <FilePath>..\User\Driver\Inc\Demo.h</FilePath>
             </File>
+            <File>
+              <FileName>opticalflow.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Driver\Inc\opticalflow.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -771,6 +776,11 @@
               <FileName>Dome.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Driver\Src\Dome.c</FilePath>
+            </File>
+            <File>
+              <FileName>opticalflow.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Driver\Src\opticalflow.c</FilePath>
             </File>
           </Files>
         </Group>

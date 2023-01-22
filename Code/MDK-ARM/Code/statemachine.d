@@ -39,4 +39,5 @@ code/statemachine.o: ..\User\App\Src\statemachine.c \
   ..\Core\Inc\main.h ..\User\Driver\MPU6050\mpu6050.h \
   ..\User\Driver\MPU6050\eMPL\inv_mpu.h \
   ..\User\Driver\MPU6050\eMPL\inv_mpu_dmp_motion_driver.h \
+  ..\User\Driver\Inc\opticalflow.h \
   E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\stdio.h

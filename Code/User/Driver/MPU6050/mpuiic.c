@@ -165,6 +165,7 @@ uint8_t MPU_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf)
 	return 0;
 #elif defined(MPU6050_Hardware_I2C)
 	HAL_I2C_Mem_Write(&MPU6050_I2C_Handle, MPU_WRITE, reg, I2C_MEMADD_SIZE_8BIT, buf, len,0xff);
+	//HAL_I2C_Mem_Write_DMA(&MPU6050_I2C_Handle, MPU_WRITE, reg, I2C_MEMADD_SIZE_8BIT, buf, len);
 	return 0;
 #endif
 }
@@ -199,6 +200,7 @@ uint8_t MPU_Read_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf)
 	return 0;
 #elif defined(MPU6050_Hardware_I2C)
 	HAL_I2C_Mem_Read(&MPU6050_I2C_Handle, MPU_READ, reg, I2C_MEMADD_SIZE_8BIT, buf, len,0xff);
+	//HAL_I2C_Mem_Read_DMA(&MPU6050_I2C_Handle, MPU_READ, reg, I2C_MEMADD_SIZE_8BIT, buf, len);
 	HAL_Delay(1);
 	return 0;
 #endif
@@ -222,6 +224,7 @@ uint8_t MPU_Write_Byte(uint8_t reg, uint8_t data)
 	return 0;
 #elif defined(MPU6050_Hardware_I2C)
 	return HAL_I2C_Mem_Write(&MPU6050_I2C_Handle, (MPU_ADDR << 1), reg, 1, &data, 1,0xff);
+	//return HAL_I2C_Mem_Write_DMA(&MPU6050_I2C_Handle, (MPU_ADDR << 1), reg, 1, &data, 1);
 #endif
 }
 /**
@@ -246,6 +249,7 @@ uint8_t MPU_Read_Byte(uint8_t reg)
 #elif defined(MPU6050_Hardware_I2C)
 	uint8_t zj;
 	HAL_I2C_Mem_Read(&MPU6050_I2C_Handle, (MPU_ADDR << 1), reg, 1, &zj, 1,0xff);
+	//HAL_I2C_Mem_Read_DMA(&MPU6050_I2C_Handle, (MPU_ADDR << 1), reg, 1, &zj, 1);
 	return zj;
 #endif
 }

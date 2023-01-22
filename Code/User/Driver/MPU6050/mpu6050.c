@@ -4,7 +4,7 @@
 #include "i2c.h"
 #include "Print.h"
 
-static MPU_data mpu_data;
+static MPU_data _mpu_data;
 
 /**
  * @brief 初始化MPU6050
@@ -28,7 +28,7 @@ uint8_t MPU_Init(void)
 	MPU_Read_Byte(MPU_DEVICE_ID_REG);
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X01); //设置CLKSEL,PLL X轴为参考
 	MPU_Write_Byte(MPU_PWR_MGMT2_REG, 0X00); //加速度与陀螺仪都工作
-	MPU_Set_Rate(200);						 //设置采样率为50Hz
+	MPU_Set_Rate(50);						 //设置采样率为50Hz
 	return 0;
 }
 //设置MPU6050陀螺仪传感器满量程范围
@@ -133,12 +133,12 @@ uint8_t MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 
 void Update_MPU_Data(void)
 {
-		mpu_dmp_get_data(&mpu_data.pitch,&mpu_data.roll,&mpu_data.yaw);
-		MPU_Get_Accelerometer(&mpu_data.ax,&mpu_data.ay,&mpu_data.az);
-		mpu_data.temp = MPU_Get_Temperature();
+		mpu_dmp_get_data(&_mpu_data.pitch,&_mpu_data.roll,&_mpu_data.yaw);
+		MPU_Get_Accelerometer(&_mpu_data.ax,&_mpu_data.ay,&_mpu_data.az);
+		_mpu_data.temp = MPU_Get_Temperature();
 }
 MPU_data Get_MPU_Data(void)
 {
-	return mpu_data;
+	return _mpu_data;
 
 }
