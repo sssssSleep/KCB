@@ -136,6 +136,7 @@ void task2(uint16_t taskid)
 	TaskDelay_ms(500);
 	UpdatePackage();
 	SendOnePackage();
+	printf("task %x used %d ms\r\n",taskid,GetIntervalTime());
 }
 /***************************************************
 *@brief:  任务三																				 
@@ -149,6 +150,7 @@ void task3(uint16_t taskid)
 	WriteThrottle_SD(0x80);
 	WritePitch_SD(0x82);
 	WriteRoll_SD(0x78);
+	printf("task %x used %d ms\r\n",taskid,GetIntervalTime());
 }
 /***************************************************
 *@brief:  任务四	更新mpu信息																			 
@@ -161,6 +163,7 @@ void task4(uint16_t taskid)
 	TaskDelay_ms(20);
 	Update_MPU_Data();
 	mpudata = Get_MPU_Data();
+	printf("task %x used %d ms\r\n",taskid,GetIntervalTime());
 }
 
  /***************************************************
@@ -176,6 +179,7 @@ void task5(uint16_t taskid)
 	printf("ax    = %d  ay   = %d  az  = %d\r\n",mpudata.ax,mpudata.ay,mpudata.az);
 	printf("temp  = %d \r\n",mpudata.temp);
 	printf("vy = : %d  vx = : %d  qual = : %d\r\n",optdata.vy,optdata.vx,optdata.qual);
+	printf("task %x used %d ms\r\n",taskid,GetIntervalTime());
 }
  /***************************************************
 *@brief:  任务六																				 
@@ -188,6 +192,7 @@ void task6(uint16_t taskid)
 	TaskDelay_ms(20);
 	UpdateOptData();
 	optdata = Get_Opt_Data();
+	printf("task %x used %d ms\r\n",taskid,GetIntervalTime());
 }
 /***************************************************
 *@brief:  任务延时函数																				 
@@ -226,6 +231,7 @@ uint8_t DelayMs(uint32_t ms , uint16_t taskid)
 	if(HAL_GetTick()-delay_list[listnum][2] >= delay_list[listnum][1])//判断时间间隔是否达到延时时间
 	{
 		//delay_list[listnum][0] = 0;//释放任务延时
+		printf("task %x delay %d ms\r\n",taskid,HAL_GetTick()-delay_list[listnum][2]);
 		delay_list[listnum][2] = HAL_GetTick();//循环
 		return 0 ;//结束延时中
 	}
