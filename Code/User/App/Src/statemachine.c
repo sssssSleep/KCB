@@ -6,13 +6,30 @@
 
 #include "statemachine.h"
 
-static enum state state = TASK_1;//创建枚举变量
 static uint32_t ltime = 0;	//状态机时钟
+static uint32_t testtime = 0;	//测试时钟
+static uint32_t testtime2 = 0;	//测试时钟
 static uint8_t fly_flag = 0;//起飞标志位
-static uint32_t delay_list[DELAY_NUM][3] = { {0} };//任务延时表（可改为结构体数组）
+static _TaskDelay delay_list[DELAY_NUM];//任务延时表
 static MPU_data mpudata;
 static OPT_Data optdata;
+static _StatemachineData FSMD;
 //注释格式
+/***************************************************
+*@brief:  更新时间																				 
+*@param:  无                                      
+*@retval: 无                                     
+*@author: 梁辉强 2023.1.17                                        
+****************************************************/
+void DelayListInit()
+{
+	for(int i = 0;i < DELAY_NUM;i++)
+	{	
+		delay_list[i].lstime = 0;
+		delay_list[i].ms = 0;
+		delay_list[i].taskid = 0;
+	}
+}
 /***************************************************
 *@brief:  更新时间																				 
 *@param:  无                                      
@@ -31,12 +48,78 @@ void UpdateTime()
 ****************************************************/
 void UpdateState()
 {
-	if(state == LAST_TASK)
+	if(FSMD.called_flag)//判断是需要调用任务
 	{
-		state = FIRST_TASK;
+		switch(FSMD.cdstate)//任务调用状态
+		{
+			case NO_RESPNOD:
+				FSMD.cdstate = RESPNODED;//若未响应则更新为已响应
+				break;
+			case RESPNODED:
+				FSMD.cdstate = ACCOMPLISHED;//若已响应则更新为已完成
+				break;
+			case ACCOMPLISHED:
+				break;
+		}
+		if(FSMD.cdstate == ACCOMPLISHED)//若已完成则恢复顺序状态更新
+		{
+				if(FSMD.lstate == LAST_TASK)
+				{
+					FSMD.state = FIRST_TASK;
+				}
+				else
+				{
+					FSMD.state = FSMD.lstate++;
+				}
+				FSMD.called_flag = 0;//完成一次任务调用
+			
+		}
+		return ;
+	}
+	//无任务调用时顺序更新
+	if(FSMD.state == LAST_TASK)
+	{
+		FSMD.lstate = FSMD.state;
+		FSMD.state = FIRST_TASK;
 	}
 	else
-		state++;
+	{
+		FSMD.lstate = FSMD.state;
+		FSMD.state++;
+	}
+}
+
+/***************************************************
+*@brief:  调用任务																				 
+*@param:  要调用的任务                                     
+*@retval: 0 : 切换成功
+					1 ：已有切换任务
+*@author: 梁辉强 2023.1.17                                        
+****************************************************/
+uint8_t CallTask(enum state state)
+{
+	if(FSMD.called_flag)//已有切换任务
+	{
+		if(FSMD.cstate == FSMD.state && FSMD.cdstate == RESPNODED)//如果是在被调用任务中再次调用任务，被调用任务已被响应
+		{
+			printf("in task %d called task %d,ctask is task %d,ltask = task %d\r\n",FSMD.state+1,state+1,FSMD.cstate+1,FSMD.lstate+1);
+			FSMD.cstate = state;//则更新被调用任务
+			FSMD.cdstate = NO_RESPNOD;//更新调用响应状态
+			FSMD.state = state;//更新下一个要进入的任务 为 被调用任务
+			return 0;
+		}
+		return 1;
+	}
+	else//如果没有
+	{
+		printf("in task %d called task %d\r\n",FSMD.state+1,state+1);
+		FSMD.cdstate = NO_RESPNOD;//更新调用响应状态
+		FSMD.lstate = FSMD.state;//记录跳出位置
+		FSMD.cstate = state;//记录被调用任务
+		FSMD.state = state;//更新下一个要进入的任务 为 被调用任务
+		FSMD.called_flag = 1;	//更新标志位
+		return 0;
+	}
 }
 //uint32_t GetNowTime()
 //{
@@ -66,48 +149,46 @@ uint32_t GetIntervalTime()
 void loop()
 {
 	//Init
+	DelayListInit();
 	MPU_Init();
   printf("\r\n%d\r\n", mpu_dmp_init());
 	Opt_init();
-	//HAL_Delay(5000);
+	HAL_Delay(2000);
+	testtime = HAL_GetTick();
+	testtime2 = HAL_GetTick();
 	//start
 	while(1)
 	{
 		UpdateTime();
-		switch(state)
+		switch(FSMD.state)
 		{
 			case TASK_1:
 						UpdateTime();
-						task1(0x11);
-						UpdateState();
+						//task1(0x11);
 						break;
 			case TASK_2:
 						UpdateTime();
 						task2(0x22);
-						UpdateState();
 						break;
 			case TASK_3:
 						UpdateTime();
 						task3(0x33);
-						UpdateState();
 						break;
 			case TASK_4:
 						UpdateTime();
 						task4(0x44);
-						UpdateState();
 						break;	
 			case TASK_5:
 						UpdateTime();
 						task5(0x55);
-						UpdateState();
 						break;
 			case TASK_6:
 						UpdateTime();
 						task6(0x66);
-						UpdateState();
 						break;				
 		
 		}
+		UpdateState();
 	}
 }
 /***************************************************
@@ -136,6 +217,11 @@ void task2(uint16_t taskid)
 	TaskDelay_ms(500);
 	UpdatePackage();
 	SendOnePackage();
+	if(HAL_GetTick()-testtime >=3000)
+	{
+		CallTask(TASK_5);
+		testtime = HAL_GetTick();
+	}
 	printf("task %x used %d ms\r\n",taskid,GetIntervalTime());
 }
 /***************************************************
@@ -180,6 +266,11 @@ void task5(uint16_t taskid)
 	printf("temp  = %d \r\n",mpudata.temp);
 	printf("vy = : %d  vx = : %d  qual = : %d\r\n",optdata.vy,optdata.vx,optdata.qual);
 	printf("task %x used %d ms\r\n",taskid,GetIntervalTime());
+	if(HAL_GetTick()-testtime2 >=2000)
+	{
+		CallTask(TASK_3);
+		testtime2 = HAL_GetTick();
+	}
 }
  /***************************************************
 *@brief:  任务六																				 
@@ -205,9 +296,22 @@ uint8_t DelayMs(uint32_t ms , uint16_t taskid)
 {
 	uint8_t listnum = 0;
 	uint8_t exist_flag = 0;
+	if(FSMD.called_flag)//若存在调用任务
+	{
+		for(int i = 0;i < DELAY_NUM;i++)//查找任务id对应的延时
+		{
+			if(delay_list[i].taskid == taskid && delay_list[i].ms == ms)
+			{
+				listnum = i;
+				break;
+			}
+		}
+		delay_list[listnum].lstime = HAL_GetTick();//更新任务时间，避免连续两次调用
+		return 0;//直接跳过一次延时
+	}
 	for(int i = 0;i < DELAY_NUM;i++)//查找该任务是否存在延时
 	{
-			if(delay_list[i][0] == taskid && delay_list[i][1] == ms)
+			if(delay_list[i].taskid == taskid && delay_list[i].ms == ms)
 			{
 				listnum = i;
 				exist_flag = 1;
@@ -218,21 +322,21 @@ uint8_t DelayMs(uint32_t ms , uint16_t taskid)
 	{
 		for(int i = 0;i < DELAY_NUM;i++)
 		{
-			if(delay_list[i][0] == 0)
+			if(delay_list[i].taskid == 0)
 			{
-				delay_list[i][0] = taskid;
-				delay_list[i][1] = ms;
-				delay_list[i][2] = HAL_GetTick();//获取延时开始时刻
+				delay_list[i].taskid = taskid;
+				delay_list[i].ms = ms;
+				delay_list[i].lstime = HAL_GetTick();//获取延时开始时刻
 				listnum = i;
 				break;
 			}
 		}
 	}
-	if(HAL_GetTick()-delay_list[listnum][2] >= delay_list[listnum][1])//判断时间间隔是否达到延时时间
+	if(HAL_GetTick()-delay_list[listnum].lstime >= delay_list[listnum].ms)//判断时间间隔是否达到延时时间
 	{
 		//delay_list[listnum][0] = 0;//释放任务延时
-		printf("task %x delay %d ms\r\n",taskid,HAL_GetTick()-delay_list[listnum][2]);
-		delay_list[listnum][2] = HAL_GetTick();//循环
+		printf("task %x delay %d ms\r\n",taskid,HAL_GetTick()-delay_list[listnum].lstime);
+		delay_list[listnum].lstime = HAL_GetTick();//循环
 		return 0 ;//结束延时中
 	}
 	else

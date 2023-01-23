@@ -28,8 +28,31 @@ enum state
 	TASK_5,
 	TASK_6,
 };
+enum callstate
+{
+	NO_RESPNOD,
+	RESPNODED,
+	ACCOMPLISHED,
+};
+typedef struct
+{
+	uint8_t taskid;
+	uint32_t ms;
+	uint32_t lstime;
+}_TaskDelay;
+typedef struct
+{
+	enum state state;
+	enum state lstate;
+	enum state cstate;
+	enum callstate cdstate;
+	uint8_t called_flag;
+}_StatemachineData;
 //状态机循环体
 void loop(void);
+//状态机相关函数
+uint8_t CallTask(enum state state);
+void DelayListInit(void);
 //任务 任务ID是为了记录任务延时宏
 void task1(uint16_t taskid);
 void task2(uint16_t taskid);
