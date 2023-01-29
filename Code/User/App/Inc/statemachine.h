@@ -4,6 +4,7 @@
 #include "UartDriver.h"
 #include "mpu6050.h"
 #include "opticalflow.h"
+#include "SPL06_001.h"
 #include <stdio.h>
 
 #define TASK_1_TIME 10

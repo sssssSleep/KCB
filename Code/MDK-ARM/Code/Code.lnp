@@ -30,6 +30,7 @@
 "code\uartdriver.o"
 "code\dome.o"
 "code\opticalflow.o"
+"code\spl06_001.o"
 "code\statemachine.o"
 "code\delay.o"
 "code\print.o"

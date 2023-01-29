@@ -3,6 +3,7 @@
 LHQ 2022.01.16 
 */
 #include "UartDriver.h"
+#include "stdio.h"
 static uint8_t data[10];//数据包存放数组
 static UFD udata;				//数据结构体
 
@@ -14,7 +15,7 @@ static UFD udata;				//数据结构体
 ****************************************************/
 void fly()
 {
-			HAL_Delay(5000);
+			HAL_Delay(2000);
 			udata.roll=0x80;
 			udata.pitch=0x80;
 			udata.throttle=0x80;
@@ -48,7 +49,11 @@ uint8_t SendOnePackage()
 {
 	if(data[8] == 0)
 	{	
-				HAL_UART_Transmit_DMA(&huart2,data,8);
+			while(HAL_UART_Transmit_DMA(&huart2,data,8) == HAL_BUSY)
+			{
+				huart2.gState = HAL_UART_STATE_READY;
+				__HAL_UNLOCK(&huart2);//解锁
+			}
 				//HAL_UART_Transmit(&huart1,data,8,0xff);
 			data[8] = 1;
 			return 1;

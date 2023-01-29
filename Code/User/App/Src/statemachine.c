@@ -151,9 +151,10 @@ void loop()
 	//Init
 	DelayListInit();
 	MPU_Init();
-  printf("\r\n%d\r\n", mpu_dmp_init());
+  printf("\r\nmpu dmp = %d\r\n", mpu_dmp_init());
 	Opt_init();
-	HAL_Delay(2000);
+	//printf("\r\nspl = %d\r\n", spl0601_init());
+	//HAL_Delay(2000);
 	testtime = HAL_GetTick();
 	testtime2 = HAL_GetTick();
 	//start
@@ -164,7 +165,7 @@ void loop()
 		{
 			case TASK_1:
 						UpdateTime();
-						//task1(0x11);
+						task1(0x11);
 						break;
 			case TASK_2:
 						UpdateTime();
@@ -280,9 +281,16 @@ void task5(uint16_t taskid)
 ****************************************************/
 void task6(uint16_t taskid)
 {
+	float temp = 0, presure = 0;
 	TaskDelay_ms(20);
 	UpdateOptData();
 	optdata = Get_Opt_Data();
+
+
+	//presure = user_spl0601_get_presure();
+	//temp = user_spl0601_get_temperature();
+	
+	//printf("presure = %f Pa temp = %f C\r\n",presure,temp);
 	printf("task %x used %d ms\r\n",taskid,GetIntervalTime());
 }
 /***************************************************
