@@ -93,6 +93,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C2_Init();
   MX_TIM9_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

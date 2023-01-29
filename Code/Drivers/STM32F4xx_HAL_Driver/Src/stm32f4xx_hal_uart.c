@@ -1405,7 +1405,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, const uint8_t
     }
 
     /* Process Locked */
-    __HAL_LOCK(huart);
+    //__HAL_LOCK(huart);
 
     huart->pTxBuffPtr = pData;
     huart->TxXferSize = Size;
@@ -1434,7 +1434,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, const uint8_t
     __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_TC);
 
     /* Process Unlocked */
-    __HAL_UNLOCK(huart);
+    //__HAL_UNLOCK(huart);
 
     /* Enable the DMA transfer for transmit request by setting the DMAT bit
        in the UART CR3 register */

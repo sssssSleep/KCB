@@ -762,6 +762,11 @@
               <FileType>5</FileType>
               <FilePath>..\User\Driver\Inc\opticalflow.h</FilePath>
             </File>
+            <File>
+              <FileName>SPL06_001.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Driver\Inc\SPL06_001.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -781,6 +786,11 @@
               <FileName>opticalflow.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Driver\Src\opticalflow.c</FilePath>
+            </File>
+            <File>
+              <FileName>SPL06_001.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Driver\Src\SPL06_001.c</FilePath>
             </File>
           </Files>
         </Group>
