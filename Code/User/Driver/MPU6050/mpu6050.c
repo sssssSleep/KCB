@@ -3,9 +3,12 @@
 #include "usart.h"
 #include "i2c.h"
 #include "Print.h"
-
+#include "KalMan.h"
 static MPU_data _mpu_data;
-
+static MPU_data _mpu_data_kalman;
+static KalmanFilterData KFD_pitch;
+static KalmanFilterData KFD_roll;
+static KalmanFilterData KFD_yaw;
 /**
  * @brief 初始化MPU6050
  * @param 无
@@ -29,6 +32,35 @@ uint8_t MPU_Init(void)
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X01); //设置CLKSEL,PLL X轴为参考
 	MPU_Write_Byte(MPU_PWR_MGMT2_REG, 0X00); //加速度与陀螺仪都工作
 	MPU_Set_Rate(50);						 //设置采样率为50Hz
+	MPU_Kalmam_Init();
+	_mpu_data.linear_cor_val_k = 0.000004625;
+	_mpu_data.first = 1;
+	_mpu_data.pitch_b = 0;
+			_mpu_data.roll_b = 0;
+			_mpu_data.yaw_b = 0;
+	return 0;
+}
+/**
+ * @brief 初始化MPU6050的欧拉角卡尔曼滤波
+ * @param 无
+ * @return 状态 0成功 其他失败
+ * @author HZ12138
+ * @date 2022-08-08 14:51:59
+ */
+uint8_t MPU_Kalmam_Init(void)
+{
+	KFD_pitch.Q = P_Q;
+	KFD_pitch.R = P_R;
+	KFD_roll.Q  = R_Q;
+	KFD_roll.R  = R_R;
+	KFD_yaw.Q   = Y_Q;
+	KFD_yaw.R   = Y_R;
+	KFD_pitch.p_last = 0.0f;
+	KFD_roll.p_last  = 0.0f;
+	KFD_yaw.p_last   = 0.0f;
+  KFD_pitch.x_last = 0.0f;
+	KFD_roll.x_last  = 0.0f;
+	KFD_yaw.x_last   = 0.0f;
 	return 0;
 }
 //设置MPU6050陀螺仪传感器满量程范围
@@ -131,14 +163,55 @@ uint8_t MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 	;
 }
 
+
 void Update_MPU_Data(void)
 {
+		if(_mpu_data.first == 2)
+		{
+		}
+		else if(_mpu_data.first == 0)
+		{
+			_mpu_data.base_time = HAL_GetTick();
+			_mpu_data.first = 1;
+		}
+		else if(_mpu_data.first == 1&& HAL_GetTick()-_mpu_data.base_time >= 40000 )
+		{
+			mpu_dmp_get_data(&_mpu_data.pitch,&_mpu_data.roll,&_mpu_data.yaw);
+			_mpu_data.pitch_b = _mpu_data.pitch;
+			_mpu_data.roll_b = _mpu_data.roll;
+			_mpu_data.yaw_b = _mpu_data.yaw;
+			_mpu_data.first = 2;
+		}
 		mpu_dmp_get_data(&_mpu_data.pitch,&_mpu_data.roll,&_mpu_data.yaw);
+		
+			if(_mpu_data.pitch_b > __DBL_EPSILON__)
+					_mpu_data.pitch -= _mpu_data.pitch_b;
+			else
+				_mpu_data.pitch += _mpu_data.pitch_b;		
+				if(_mpu_data.roll_b > __DBL_EPSILON__)
+					_mpu_data.roll += _mpu_data.roll_b;
+			else
+				_mpu_data.roll -= _mpu_data.roll_b;
+		
+				if(_mpu_data.yaw_b > __DBL_EPSILON__)
+					_mpu_data.yaw += _mpu_data.yaw_b;
+			else
+				_mpu_data.yaw -= _mpu_data.yaw_b;
+			
 		MPU_Get_Accelerometer(&_mpu_data.ax,&_mpu_data.ay,&_mpu_data.az);
 		_mpu_data.temp = MPU_Get_Temperature();
 }
 MPU_data Get_MPU_Data(void)
 {
 	return _mpu_data;
+
+}
+MPU_data Get_MPU_Data_Kalman(void)
+{
+	_mpu_data_kalman.pitch = KalmanFilter(_mpu_data.pitch,&KFD_pitch);
+	_mpu_data_kalman.roll = KalmanFilter(_mpu_data.roll,&KFD_roll);
+	_mpu_data_kalman.yaw = KalmanFilter(_mpu_data.yaw,&KFD_yaw);
+
+	return _mpu_data_kalman;
 
 }

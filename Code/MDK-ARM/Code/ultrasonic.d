@@ -1,4 +1,5 @@
-code/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
+code/ultrasonic.o: ..\User\Driver\Src\ultrasonic.c \
+  ..\User\Driver\Inc\ultrasonic.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -33,12 +34,4 @@ code/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
-  ..\Core\Inc\dma.h ..\Core\Inc\main.h ..\Core\Inc\i2c.h \
-  ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
-  ..\User\App\Inc\statemachine.h ..\User\Driver\Inc\UartDriver.h \
-  ..\User\Driver\MPU6050\mpu6050.h ..\User\Driver\MPU6050\mpuiic.h \
-  ..\User\Driver\MPU6050\mpu6050.h ..\User\Driver\MPU6050\eMPL\inv_mpu.h \
-  ..\User\Driver\MPU6050\eMPL\inv_mpu_dmp_motion_driver.h \
-  ..\User\Driver\Inc\opticalflow.h ..\User\Driver\Inc\SPL06_001.h \
-  E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\stdio.h \
-  ..\User\Driver\Inc\ultrasonic.h
+  E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\stdio.h

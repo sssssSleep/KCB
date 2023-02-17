@@ -40,4 +40,5 @@ code/statemachine.o: ..\User\App\Src\statemachine.c \
   ..\User\Driver\MPU6050\eMPL\inv_mpu.h \
   ..\User\Driver\MPU6050\eMPL\inv_mpu_dmp_motion_driver.h \
   ..\User\Driver\Inc\opticalflow.h ..\User\Driver\Inc\SPL06_001.h \
-  E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\stdio.h
+  E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\stdio.h \
+  ..\User\Driver\Inc\ultrasonic.h

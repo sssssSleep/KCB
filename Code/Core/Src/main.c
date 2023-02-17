@@ -67,7 +67,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  //while (1);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -88,12 +88,36 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+//	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_RESET);
+//	HAL_Delay(300);
+//	int flag = 1;
+//	while(1)
+//	{
+//		if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_12) == RESET)
+//		{
+//			HAL_Delay(200);
+//			if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_12) == RESET)
+//			{
+//				while(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_12) == RESET);
+//				flag = !flag;
+//			}
+//		}
+//		if(flag)
+//		{
+//			HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_SET);
+//			HAL_Delay(1);
+//			HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_RESET);
+//			HAL_Delay(300);
+//		}
+//	}
+	
   MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
   MX_I2C2_Init();
   MX_TIM9_Init();
   MX_I2C1_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -106,7 +130,16 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		loop();
+		if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_12) == RESET)
+		{
+			HAL_Delay(200);
+			if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_12) == RESET)
+			{
+				while(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_12) == RESET);
+				printf("start\r\n");
+				loop();
+			}
+		}
   }
   /* USER CODE END 3 */
 }

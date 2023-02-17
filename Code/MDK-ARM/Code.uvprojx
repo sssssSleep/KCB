@@ -763,9 +763,24 @@
               <FilePath>..\User\Driver\Inc\opticalflow.h</FilePath>
             </File>
             <File>
+              <FileName>pid.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Driver\Inc\pid.h</FilePath>
+            </File>
+            <File>
               <FileName>SPL06_001.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\User\Driver\Inc\SPL06_001.h</FilePath>
+            </File>
+            <File>
+              <FileName>ultrasonic.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Driver\Inc\ultrasonic.h</FilePath>
+            </File>
+            <File>
+              <FileName>KalMan.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Driver\Inc\KalMan.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -791,6 +806,21 @@
               <FileName>SPL06_001.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Driver\Src\SPL06_001.c</FilePath>
+            </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Driver\Src\pid.c</FilePath>
+            </File>
+            <File>
+              <FileName>ultrasonic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Driver\Src\ultrasonic.c</FilePath>
+            </File>
+            <File>
+              <FileName>KalMan.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Driver\Src\KalMan.c</FilePath>
             </File>
           </Files>
         </Group>

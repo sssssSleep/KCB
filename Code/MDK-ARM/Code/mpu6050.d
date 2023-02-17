@@ -38,4 +38,5 @@ code/mpu6050.o: ..\User\Driver\MPU6050\mpu6050.c \
   ..\User\Driver\MPU6050\eMPL\inv_mpu_dmp_motion_driver.h \
   ..\User\Driver\Inc\delay.h ..\Core\Inc\usart.h ..\Core\Inc\main.h \
   ..\Core\Inc\i2c.h ..\User\Driver\Inc\Print.h \
-  E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\stdio.h
+  E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\stdio.h \
+  ..\User\Driver\Inc\KalMan.h

@@ -34,5 +34,12 @@ code/opticalflow.o: ..\User\Driver\Src\opticalflow.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
-  ..\Core\Inc\main.h ..\User\Driver\Inc\Print.h \
-  E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\stdio.h
+  ..\Core\Inc\main.h \
+  E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\math.h \
+  ..\User\Driver\Inc\Print.h \
+  E:\Software\Tools\Keil\Keil5\ARM\ARMCLANG\Bin\..\include\stdio.h \
+  ..\User\Driver\Inc\pid.h ..\User\Driver\MPU6050\MPU6050.h \
+  ..\User\Driver\MPU6050\mpuiic.h ..\User\Driver\MPU6050\mpu6050.h \
+  ..\User\Driver\MPU6050\eMPL\inv_mpu.h \
+  ..\User\Driver\MPU6050\eMPL\inv_mpu_dmp_motion_driver.h \
+  ..\User\Driver\Inc\SPL06_001.h

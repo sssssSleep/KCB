@@ -123,16 +123,32 @@
 #define MPU_FIFO_RW_REG 0X74      // FIFO读写寄存器
 #define MPU_DEVICE_ID_REG 0X75    //器件ID寄存器
 
+
+#define P_R         0.5
+#define P_Q  				0.01
+#define R_R 				0.7
+#define R_Q 				0.01
+#define Y_R 				0.3
+#define Y_Q 				0.52
+
 typedef struct 
 {
 	float yaw;
 	float roll;
 	float pitch;
+	float yaw_b;
+	float roll_b;
+	float pitch_b;
 	short ax;
 	short ay;
 	short az;
 	short temp;
+	uint8_t first;
+	uint32_t base_time;
+	float linear_cor_val_k;
+	float linear_cor_val_b;
 }MPU_data;
+
 
 
 uint8_t MPU_Init(void);                                                              //初始化MPU6050
@@ -155,4 +171,6 @@ uint8_t MPU_Get_Accelerometer(short *ax, short *ay, short *az);
 
 void Update_MPU_Data(void);
 MPU_data Get_MPU_Data(void);
+MPU_data Get_MPU_Data_Kalman(void);
+uint8_t MPU_Kalmam_Init(void);
 #endif

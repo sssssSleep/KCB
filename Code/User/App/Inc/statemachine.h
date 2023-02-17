@@ -6,6 +6,7 @@
 #include "opticalflow.h"
 #include "SPL06_001.h"
 #include <stdio.h>
+#include "ultrasonic.h"
 
 #define TASK_1_TIME 10
 #define TASK_2_TIME 10
