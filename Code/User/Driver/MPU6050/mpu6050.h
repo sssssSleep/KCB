@@ -136,6 +136,12 @@ typedef struct
 	float yaw;
 	float roll;
 	float pitch;
+	float vroll;
+	float vpitch;
+	float vyaw;
+	float lroll;
+	float lpitch;
+	float lyaw;
 	float yaw_b;
 	float roll_b;
 	float pitch_b;
@@ -144,6 +150,8 @@ typedef struct
 	short az;
 	short temp;
 	uint8_t first;
+	uint32_t last_time;
+	uint32_t inv_time;
 	uint32_t base_time;
 	float linear_cor_val_k;
 	float linear_cor_val_b;

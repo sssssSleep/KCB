@@ -4,7 +4,7 @@
 #include "i2c.h"
 #include "Print.h"
 #include "KalMan.h"
-static MPU_data _mpu_data;
+ MPU_data _mpu_data;
 static MPU_data _mpu_data_kalman;
 static KalmanFilterData KFD_pitch;
 static KalmanFilterData KFD_roll;
@@ -33,7 +33,7 @@ uint8_t MPU_Init(void)
 	MPU_Write_Byte(MPU_PWR_MGMT2_REG, 0X00); //加速度与陀螺仪都工作
 	MPU_Set_Rate(50);						 //设置采样率为50Hz
 	MPU_Kalmam_Init();
-	_mpu_data.linear_cor_val_k = 0.000004625;
+	_mpu_data.linear_cor_val_k = 0.000005125;
 	_mpu_data.first = 1;
 	_mpu_data.pitch_b = 0;
 			_mpu_data.roll_b = 0;
@@ -168,13 +168,61 @@ void Update_MPU_Data(void)
 {
 		if(_mpu_data.first == 2)
 		{
+			mpu_dmp_get_data(&_mpu_data.pitch,&_mpu_data.roll,&_mpu_data.yaw);
+			_mpu_data.inv_time = HAL_GetTick() - _mpu_data.last_time;
+			_mpu_data.last_time = HAL_GetTick();
+			if(_mpu_data.pitch_b > 0.00001f)
+			{
+					_mpu_data.pitch -= _mpu_data.pitch_b;
+					_mpu_data.vpitch = (((_mpu_data.pitch - _mpu_data.lpitch)*_mpu_data.inv_time)/1000.0f); //d/s
+					_mpu_data.lpitch = _mpu_data.pitch;
+			}
+			else
+			{
+				_mpu_data.pitch += _mpu_data.pitch_b;		
+				_mpu_data.vpitch = (((_mpu_data.pitch - _mpu_data.lpitch)*_mpu_data.inv_time)/1000.0f);//d/s
+				_mpu_data.lpitch = _mpu_data.pitch;
+			}
+				if(_mpu_data.roll_b > 0.00001f)
+				{
+					_mpu_data.roll -= _mpu_data.roll_b;
+					_mpu_data.roll = -_mpu_data.roll;
+					_mpu_data.vroll = (((_mpu_data.roll - _mpu_data.lroll)*_mpu_data.inv_time)/1000.0f);//d/s
+					_mpu_data.lroll = _mpu_data.roll;
+				}
+			else
+			{
+				_mpu_data.roll += _mpu_data.roll_b;
+				_mpu_data.roll = -_mpu_data.roll;
+				_mpu_data.vroll = (((_mpu_data.roll - _mpu_data.lroll)*_mpu_data.inv_time)/1000.0f);//d/s
+				_mpu_data.lroll = _mpu_data.roll;
+			}
+				if(_mpu_data.yaw_b > 0.00001f)
+				{
+					_mpu_data.yaw += _mpu_data.yaw_b;
+					_mpu_data.yaw = -_mpu_data.yaw;
+					_mpu_data.yaw = _mpu_data.yaw + _mpu_data.linear_cor_val_k*(HAL_GetTick() - _mpu_data.base_time);
+					_mpu_data.vyaw = (((_mpu_data.yaw - _mpu_data.lyaw)*_mpu_data.inv_time)/1000.0f); //d/s
+					_mpu_data.lyaw = _mpu_data.yaw;
+				}
+			else
+			{
+				_mpu_data.yaw -= _mpu_data.yaw_b;
+				_mpu_data.yaw = -_mpu_data.yaw;
+				_mpu_data.yaw = _mpu_data.yaw + _mpu_data.linear_cor_val_k*(HAL_GetTick() - _mpu_data.base_time);
+				_mpu_data.vyaw = (((_mpu_data.yaw - _mpu_data.lyaw)*_mpu_data.inv_time)/1000.0f); //d/s
+				_mpu_data.lyaw = _mpu_data.yaw;
+			}
+			
+			MPU_Get_Accelerometer(&_mpu_data.ax,&_mpu_data.ay,&_mpu_data.az);
+			_mpu_data.temp = MPU_Get_Temperature();
 		}
 		else if(_mpu_data.first == 0)
 		{
 			_mpu_data.base_time = HAL_GetTick();
 			_mpu_data.first = 1;
 		}
-		else if(_mpu_data.first == 1&& HAL_GetTick()-_mpu_data.base_time >= 40000 )
+		else if(_mpu_data.first == 1&& HAL_GetTick()-_mpu_data.base_time >= 15000 )
 		{
 			mpu_dmp_get_data(&_mpu_data.pitch,&_mpu_data.roll,&_mpu_data.yaw);
 			_mpu_data.pitch_b = _mpu_data.pitch;
@@ -182,24 +230,7 @@ void Update_MPU_Data(void)
 			_mpu_data.yaw_b = _mpu_data.yaw;
 			_mpu_data.first = 2;
 		}
-		mpu_dmp_get_data(&_mpu_data.pitch,&_mpu_data.roll,&_mpu_data.yaw);
 		
-			if(_mpu_data.pitch_b > __DBL_EPSILON__)
-					_mpu_data.pitch -= _mpu_data.pitch_b;
-			else
-				_mpu_data.pitch += _mpu_data.pitch_b;		
-				if(_mpu_data.roll_b > __DBL_EPSILON__)
-					_mpu_data.roll += _mpu_data.roll_b;
-			else
-				_mpu_data.roll -= _mpu_data.roll_b;
-		
-				if(_mpu_data.yaw_b > __DBL_EPSILON__)
-					_mpu_data.yaw += _mpu_data.yaw_b;
-			else
-				_mpu_data.yaw -= _mpu_data.yaw_b;
-			
-		MPU_Get_Accelerometer(&_mpu_data.ax,&_mpu_data.ay,&_mpu_data.az);
-		_mpu_data.temp = MPU_Get_Temperature();
 }
 MPU_data Get_MPU_Data(void)
 {

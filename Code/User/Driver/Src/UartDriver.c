@@ -28,7 +28,7 @@ void fly()
 		WriteThrottle_SD(0x80);
 		UpdatePackage();
 		SendOnePackage();
-		HAL_Delay(1000);
+		HAL_Delay(500);
 		WriteThrottle_SD(0xFF);
 		UpdatePackage();
 		SendOnePackage();

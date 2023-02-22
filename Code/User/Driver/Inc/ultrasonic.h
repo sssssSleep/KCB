@@ -4,7 +4,7 @@
 #include "main.h"
 #include "stdio.h"
 extern UART_HandleTypeDef huart6;
-float get_hight();
-void send_ultrasonic_com();
+//float get_hight();
+//void send_ultrasonic_com();
 
 #endif  

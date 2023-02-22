@@ -493,7 +493,7 @@ float user_spl0601_get()
 				return 1;
     }
 		Tempbaro=(float)(pressure/logBaroGroundPressureSum)*1.0f;
-    spl_data.baro_height = 4433000.0f * (1 - powf((float)(Tempbaro),0.190295f));//-(temperature-s_temperature)*10.0f;
+    spl_data.baro_height = (44330.0f * (1 - powf((float)(Tempbaro),0.190295f)))*1000.0f;//mm
 		spl_data.baro_height_b = KalmanFilter(spl_data.baro_height,&KFD_SPL);
 		return 0;
 }	

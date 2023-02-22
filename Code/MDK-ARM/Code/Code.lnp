@@ -34,6 +34,7 @@
 "code\pid.o"
 "code\ultrasonic.o"
 "code\kalman.o"
+"code\altimeter.o"
 "code\statemachine.o"
 "code\delay.o"
 "code\print.o"

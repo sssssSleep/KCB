@@ -6,12 +6,11 @@
 #include "opticalflow.h"
 #include "SPL06_001.h"
 #include <stdio.h>
-#include "ultrasonic.h"
+//#include "ultrasonic.h"
+#include "altimeter.h"
+#include "pid.h"
 
-#define TASK_1_TIME 10
-#define TASK_2_TIME 10
-#define TASK_3_TIME 10
-#define TASK_4_TIME 10
+
 
 #define DELAY_NUM   						20				//任务延时最大个数
 #define FIRST_TASK  						TASK_1 		//第一个任务
@@ -50,10 +49,22 @@ typedef struct
 	enum callstate cdstate;
 	uint8_t called_flag;
 }_StatemachineData;
+
+typedef struct
+{
+	float target_height;
+	float target_yaw;
+	uint8_t hover;
+}Target_Val;
+
 //状态机循环体
 void loop(void);
+
 //状态机相关函数
 uint8_t CallTask(enum state state);
+void UpdateTime(void);
+void print_data(void);
+void UpdateState(void);
 void DelayListInit(void);
 //任务 任务ID是为了记录任务延时宏
 void task1(uint16_t taskid);
@@ -62,6 +73,8 @@ void task3(uint16_t taskid);
 void task4(uint16_t taskid);
 void task5(uint16_t taskid);
 void task6(uint16_t taskid);
+void PID_calculate(Target_Val val);
+void task_main(Target_Val tval);
 //任务延时函数
 uint8_t DelayMs(uint32_t ms , uint16_t taskid);
 #endif  

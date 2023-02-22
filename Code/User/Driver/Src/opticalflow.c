@@ -15,7 +15,7 @@ static uint8_t _flow_data_buff[18];
 OPT_Data opt_data;
 static pid_t opt_pid_x;
 static pid_t opt_pid_y;
-extern MPU_data mpudata;
+extern MPU_data _mpu_data;
 extern SPL_Data spl_data;
 _opt_origin_data opt_origin_data;
 Vector2f gyro_filter_data;
@@ -24,6 +24,7 @@ Vector2f opt_gyro_data;
 Vector2f opt_gyro_filter_data;
 Butter_Parameter OpticalFlow_Parameter,OpticalFlow_Gyro_Parameter;
 Butter_BufferData Buffer_OpticalFlow[2],Buffer_OpticalFlow_Gyro[2];
+extern float hight;
 //注释格式
 /***************************************************
 *@brief:  描述																				 
@@ -123,10 +124,11 @@ static uint8_t Optflow_Prase()//50hz
           opt_origin_data.pixel_flow_y_integral=(int16_t)(_flow_data_buff[s_i+3]<<8)|_flow_data_buff[s_i+2];
           opt_origin_data.pixel_flow_x_integral=(int16_t)(_flow_data_buff[s_i+5]<<8)|_flow_data_buff[s_i+4];
           opt_origin_data.pixel_flow_x_integral*=(-1);
+					//opt_data.vx = opt_origin_data.pixel_flow_x_integral;
+					//opt_data.vy = opt_origin_data.pixel_flow_y_integral;
           //opt_origin_data.integration_timespan= (int16_t)(OpticalFlow_Ringbuf.Ring_Buff[i+7]<<8)|OpticalFlow_Ringbuf.Ring_Buff[i+6];
           opt_origin_data.qual=_flow_data_buff[s_i+7]; 
 					}
-        
         opt_filter_data.x=LPButterworth(opt_origin_data.pixel_flow_x_integral,&Buffer_OpticalFlow[0],&OpticalFlow_Parameter);
         opt_filter_data.y=LPButterworth(opt_origin_data.pixel_flow_y_integral,&Buffer_OpticalFlow[1],&OpticalFlow_Parameter);   
         //opt_data.x=(opt_origin_data.pixel_flow_x_integral*opticalflow_high)/10000.0f;//单位:乘以高度单位mm后为实际位移mm
@@ -135,10 +137,12 @@ static uint8_t Optflow_Prase()//50hz
         opt_data.qual=opt_origin_data.qual;    
         opt_gyro_data.x=opt_filter_data.x*0.075f;//光流角速度rad/s
         opt_gyro_data.y=opt_filter_data.y*0.075f;//光流角速度rad/s 				
-        gyro_filter_data.x=LPButterworth(mpudata.pitch,&Buffer_OpticalFlow_Gyro[0],&OpticalFlow_Gyro_Parameter)/57.3f;//陀螺仪相位同步角速度
-        gyro_filter_data.y=LPButterworth(mpudata.roll,&Buffer_OpticalFlow_Gyro[1],&OpticalFlow_Gyro_Parameter)/57.3f;//陀螺仪相位同步角速度
+        gyro_filter_data.x=LPButterworth(_mpu_data.vpitch,&Buffer_OpticalFlow_Gyro[0],&OpticalFlow_Gyro_Parameter)/57.3f;//陀螺仪相位同步角速度
+        gyro_filter_data.y=LPButterworth(_mpu_data.vroll,&Buffer_OpticalFlow_Gyro[1],&OpticalFlow_Gyro_Parameter)/57.3f;//陀螺仪相位同步角速度
         opt_gyro_filter_data.x=OpticalFlow_Rotate_Complementary_Filter(opt_gyro_data.x,gyro_filter_data.x,'x');//光流角速度与陀螺仪角速度融合 
         opt_gyro_filter_data.y=OpticalFlow_Rotate_Complementary_Filter(opt_gyro_data.y,gyro_filter_data.y,'y'); //光流角速度与陀螺仪角速度融合 
+				opt_data.vx = opt_gyro_filter_data.x * hight; // cm/s
+				opt_data.vy = opt_gyro_filter_data.y * hight; // cm/s
         return 1;
       }
   return 0;
@@ -148,12 +152,12 @@ uint8_t Optflow_Is_Okay=0;
 void Optflow_Task(void)
 {
 
-	Vector2f SINS_Accel_Body;
+	//Vector2f SINS_Accel_Body;
   Optflow_Is_Okay=Optflow_Prase();
-	SINS_Accel_Body.x = -mpudata.ax;
-	SINS_Accel_Body.y = mpudata.ay;
+	//SINS_Accel_Body.x = -_mpu_data.ax;
+	//SINS_Accel_Body.y = _mpu_data.ay;
   //OpticalFlow_CF(spl_data.baro_height*10,SINS_Accel_Body,opt_gyro_filter_data);
-	OpticalFlow_CF(1,SINS_Accel_Body,opt_gyro_filter_data);
+	//OpticalFlow_CF(hight,SINS_Accel_Body,opt_gyro_filter_data);
 	
 }
 
@@ -193,8 +197,8 @@ void  OpticalFlow_CF(float flow_height,Vector2f accel,Vector2f flow)
   {  
     OpticalFlow_Speed.x=flow.x*use_height;//光流速度
     OpticalFlow_Speed.y=flow.y*use_height;//光流速度
-    OpticalFlow_Position.x+=OpticalFlow_Speed.x*Optical_Output_Dt;//光流位移
-    OpticalFlow_Position.y+=OpticalFlow_Speed.y*Optical_Output_Dt;//光流位移
+    //OpticalFlow_Position.x+=OpticalFlow_Speed.x*Optical_Output_Dt;//光流位移
+    //OpticalFlow_Position.y+=OpticalFlow_Speed.y*Optical_Output_Dt;//光流位移
     //OpticalFlow_Speed_Err.x=OpticalFlow_Speed.x-OpticalFlow_SINS.Speed[_PITCH];
     //OpticalFlow_Speed_Err.y=OpticalFlow_Speed.y-OpticalFlow_SINS.Speed[_ROLL];
     //OpticalFlow_Position_Err.x=OpticalFlow_Position.x-OpticalFlow_SINS.Position[_PITCH];
@@ -216,31 +220,33 @@ void  OpticalFlow_CF(float flow_height,Vector2f accel,Vector2f flow)
     OpticalFlow_Position_Err.y=0;
   }
   
-  OpticalFlow_SINS.Acceleration[_PITCH]=-accel.x;//惯导加速度沿载体机头
-  OpticalFlow_SINS.Acceleration[_ROLL]=accel.y;//惯导加速度沿载体横滚（机头右侧）
+  //OpticalFlow_SINS.Acceleration[_PITCH]=-accel.x;//惯导加速度沿载体机头
+  //OpticalFlow_SINS.Acceleration[_ROLL]=accel.y;//惯导加速度沿载体横滚（机头右侧）
   
-	speed_delta.x=OpticalFlow_SINS.Acceleration[_PITCH]*optical_dt;
-  speed_delta.y=OpticalFlow_SINS.Acceleration[_ROLL]*optical_dt;    
+	//speed_delta.x=OpticalFlow_SINS.Acceleration[_PITCH]*optical_dt;
+  //speed_delta.y=OpticalFlow_SINS.Acceleration[_ROLL]*optical_dt;    
   
-	OpticalFlow_SINS.Position[_PITCH]+=OpticalFlow_SINS.Speed[_PITCH]*optical_dt
-    +0.5f*speed_delta.x*optical_dt+CF_Parameter[1]*OpticalFlow_Position_Err.x;
-  OpticalFlow_SINS.Position[_ROLL]+=OpticalFlow_SINS.Speed[_ROLL]*optical_dt
-    +0.5f*speed_delta.y*optical_dt+CF_Parameter[1]*OpticalFlow_Position_Err.y;
+	//OpticalFlow_SINS.Position[_PITCH]+=OpticalFlow_SINS.Speed[_PITCH]*optical_dt
+   // +0.5f*speed_delta.x*optical_dt+CF_Parameter[1]*OpticalFlow_Position_Err.x;
+  //OpticalFlow_SINS.Position[_ROLL]+=OpticalFlow_SINS.Speed[_ROLL]*optical_dt
+   // +0.5f*speed_delta.y*optical_dt+CF_Parameter[1]*OpticalFlow_Position_Err.y;
 
-  OpticalFlow_SINS.Speed[_PITCH]+=OpticalFlow_SINS.Acceleration[_PITCH]*optical_dt+CF_Parameter[0]*OpticalFlow_Speed_Err.x;
-  OpticalFlow_SINS.Speed[_ROLL]+=OpticalFlow_SINS.Acceleration[_ROLL]*optical_dt+CF_Parameter[0]*OpticalFlow_Speed_Err.y; 
+  //OpticalFlow_SINS.Speed[_PITCH]+=OpticalFlow_SINS.Acceleration[_PITCH]*optical_dt+CF_Parameter[0]*OpticalFlow_Speed_Err.x;
+ // OpticalFlow_SINS.Speed[_ROLL]+=OpticalFlow_SINS.Acceleration[_ROLL]*optical_dt+CF_Parameter[0]*OpticalFlow_Speed_Err.y; 
+    OpticalFlow_SINS.Speed[_PITCH]+=CF_Parameter[0]*OpticalFlow_Speed_Err.x;
+		OpticalFlow_SINS.Speed[_ROLL]+=CF_Parameter[0]*OpticalFlow_Speed_Err.y; 
    
 	opt_data.vy = OpticalFlow_SINS.Speed[_ROLL];
 	opt_data.vx = OpticalFlow_SINS.Speed[_PITCH];
 	for(uint16_t i=Num-1;i>0;i--)
 	{
-		OpticalFlow_SINS.Pos_History[_ROLL][i]=OpticalFlow_SINS.Pos_History[_ROLL][i-1];
-		OpticalFlow_SINS.Pos_History[_PITCH][i]=OpticalFlow_SINS.Pos_History[_PITCH][i-1];
+		//OpticalFlow_SINS.Pos_History[_ROLL][i]=OpticalFlow_SINS.Pos_History[_ROLL][i-1];
+		//OpticalFlow_SINS.Pos_History[_PITCH][i]=OpticalFlow_SINS.Pos_History[_PITCH][i-1];
 		OpticalFlow_SINS.Vel_History[_ROLL][i]=OpticalFlow_SINS.Vel_History[_ROLL][i-1];
 		OpticalFlow_SINS.Vel_History[_PITCH][i]=OpticalFlow_SINS.Vel_History[_PITCH][i-1]; 		
 	}   
-	OpticalFlow_SINS.Pos_History[_ROLL][0]=OpticalFlow_SINS.Position[_ROLL];
-  OpticalFlow_SINS.Pos_History[_PITCH][0]=OpticalFlow_SINS.Position[_PITCH]; 
+	//OpticalFlow_SINS.Pos_History[_ROLL][0]=OpticalFlow_SINS.Position[_ROLL];
+  //OpticalFlow_SINS.Pos_History[_PITCH][0]=OpticalFlow_SINS.Position[_PITCH]; 
   OpticalFlow_SINS.Vel_History[_ROLL][0]=OpticalFlow_SINS.Speed[_ROLL];
   OpticalFlow_SINS.Vel_History[_PITCH][0]=OpticalFlow_SINS.Speed[_PITCH];  	 
 }
