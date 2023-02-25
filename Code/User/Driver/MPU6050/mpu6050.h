@@ -145,9 +145,12 @@ typedef struct
 	float yaw_b;
 	float roll_b;
 	float pitch_b;
-	short ax;
-	short ay;
-	short az;
+	short ax_s;
+	short ay_s;
+	short az_s;
+	float ax;
+	float ay;
+	float az;
 	short temp;
 	uint8_t first;
 	uint32_t last_time;

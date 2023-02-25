@@ -9,6 +9,7 @@ static MPU_data _mpu_data_kalman;
 static KalmanFilterData KFD_pitch;
 static KalmanFilterData KFD_roll;
 static KalmanFilterData KFD_yaw;
+#define g 9.8
 /**
  * @brief 初始化MPU6050
  * @param 无
@@ -22,7 +23,7 @@ uint8_t MPU_Init(void)
 	HAL_Delay(100);
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X00); //唤醒MPU6050
 	MPU_Set_Gyro_Fsr(3);					 //陀螺仪传感器,±2000dps
-	MPU_Set_Accel_Fsr(0);					 //加速度传感器,±2g
+	MPU_Set_Accel_Fsr(3);					 //加速度传感器,±3g
 	MPU_Set_Rate(50);						 //设置采样率50Hz
 	MPU_Write_Byte(MPU_INT_EN_REG, 0X00);	 //关闭所有中断
 	MPU_Write_Byte(MPU_USER_CTRL_REG, 0X00); // I2C主模式关闭
@@ -214,7 +215,10 @@ void Update_MPU_Data(void)
 				_mpu_data.lyaw = _mpu_data.yaw;
 			}
 			
-			MPU_Get_Accelerometer(&_mpu_data.ax,&_mpu_data.ay,&_mpu_data.az);
+			MPU_Get_Accelerometer(&_mpu_data.ax_s,&_mpu_data.ay_s,&_mpu_data.az_s);
+			_mpu_data.ax = (float)(_mpu_data.ax_s/2048.0f)*g*100; //cm/s2
+			_mpu_data.ax = (float)(_mpu_data.ay_s/2048.0f)*g*100; //cm/s2
+			_mpu_data.ax = (float)(_mpu_data.az_s/2048.0f)*g*100; //cm/s2
 			_mpu_data.temp = MPU_Get_Temperature();
 		}
 		else if(_mpu_data.first == 0)
