@@ -774,11 +774,6 @@
               <FilePath>..\User\Driver\Inc\SPL06_001.h</FilePath>
             </File>
             <File>
-              <FileName>ultrasonic.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\User\Driver\Inc\ultrasonic.h</FilePath>
-            </File>
-            <File>
               <FileName>KalMan.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\User\Driver\Inc\KalMan.h</FilePath>
@@ -817,11 +812,6 @@
               <FileName>pid.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Driver\Src\pid.c</FilePath>
-            </File>
-            <File>
-              <FileName>ultrasonic.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\Driver\Src\ultrasonic.c</FilePath>
             </File>
             <File>
               <FileName>KalMan.c</FileName>

@@ -32,7 +32,6 @@
 "code\opticalflow.o"
 "code\spl06_001.o"
 "code\pid.o"
-"code\ultrasonic.o"
 "code\kalman.o"
 "code\altimeter.o"
 "code\statemachine.o"

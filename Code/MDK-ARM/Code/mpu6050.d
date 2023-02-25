@@ -39,4 +39,5 @@ code/mpu6050.o: ..\User\Driver\MPU6050\mpu6050.c \
   ..\User\Driver\Inc\delay.h ..\Core\Inc\usart.h ..\Core\Inc\i2c.h \
   ..\User\Driver\Inc\Print.h \
   E:\Softwares\works\Keil_v5\MDK\ARM\ARMCLANG\Bin\..\include\stdio.h \
-  ..\User\Driver\Inc\KalMan.h
+  ..\User\Driver\Inc\KalMan.h \
+  E:\Softwares\works\Keil_v5\MDK\ARM\ARMCLANG\Bin\..\include\math.h

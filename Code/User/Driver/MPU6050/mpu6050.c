@@ -164,7 +164,7 @@ uint8_t MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 	;
 }
 
-
+#include "math.h"
 void Update_MPU_Data(void)
 {
 		if(_mpu_data.first == 2)
@@ -172,54 +172,31 @@ void Update_MPU_Data(void)
 			mpu_dmp_get_data(&_mpu_data.pitch,&_mpu_data.roll,&_mpu_data.yaw);
 			_mpu_data.inv_time = HAL_GetTick() - _mpu_data.last_time;
 			_mpu_data.last_time = HAL_GetTick();
-			if(_mpu_data.pitch_b > 0.00001f)
-			{
-					_mpu_data.pitch -= _mpu_data.pitch_b;
-					_mpu_data.vpitch = (((_mpu_data.pitch - _mpu_data.lpitch)*_mpu_data.inv_time)/1000.0f); //d/s
-					_mpu_data.lpitch = _mpu_data.pitch;
-			}
-			else
-			{
-				_mpu_data.pitch += _mpu_data.pitch_b;		
-				_mpu_data.vpitch = (((_mpu_data.pitch - _mpu_data.lpitch)*_mpu_data.inv_time)/1000.0f);//d/s
-				_mpu_data.lpitch = _mpu_data.pitch;
-			}
-				if(_mpu_data.roll_b > 0.00001f)
-				{
-					_mpu_data.roll -= _mpu_data.roll_b;
-					_mpu_data.roll = -_mpu_data.roll;
-					_mpu_data.vroll = (((_mpu_data.roll - _mpu_data.lroll)*_mpu_data.inv_time)/1000.0f);//d/s
-					_mpu_data.lroll = _mpu_data.roll;
-				}
-			else
-			{
-				_mpu_data.roll += _mpu_data.roll_b;
-				_mpu_data.roll = -_mpu_data.roll;
-				_mpu_data.vroll = (((_mpu_data.roll - _mpu_data.lroll)*_mpu_data.inv_time)/1000.0f);//d/s
-				_mpu_data.lroll = _mpu_data.roll;
-			}
+			//获取原始数据，并校正方向
+			
+			_mpu_data.pitch = _mpu_data.pitch;
+			_mpu_data.roll = -_mpu_data.roll;
+			_mpu_data.yaw = -_mpu_data.yaw;
+			//计算角速度
+			_mpu_data.vpitch = (((_mpu_data.pitch - _mpu_data.lpitch)*_mpu_data.inv_time)/1000.0f); //d/s
+			_mpu_data.lpitch = _mpu_data.pitch;
+			_mpu_data.vroll = (((_mpu_data.roll - _mpu_data.lroll)*_mpu_data.inv_time)/1000.0f);//d/s
+			_mpu_data.lroll = _mpu_data.roll;
+			//yaw轴校正
 				if(_mpu_data.yaw_b > 0.00001f)
 				{
-					_mpu_data.yaw += _mpu_data.yaw_b;
-					_mpu_data.yaw = -_mpu_data.yaw;
+					_mpu_data.yaw -= fabs(_mpu_data.yaw_b);
 					_mpu_data.yaw = _mpu_data.yaw + _mpu_data.linear_cor_val_k*(HAL_GetTick() - _mpu_data.base_time);
 					_mpu_data.vyaw = (((_mpu_data.yaw - _mpu_data.lyaw)*_mpu_data.inv_time)/1000.0f); //d/s
 					_mpu_data.lyaw = _mpu_data.yaw;
 				}
 			else
 			{
-				_mpu_data.yaw -= _mpu_data.yaw_b;
-				_mpu_data.yaw = -_mpu_data.yaw;
+				_mpu_data.yaw += fabs(_mpu_data.yaw_b);
 				_mpu_data.yaw = _mpu_data.yaw + _mpu_data.linear_cor_val_k*(HAL_GetTick() - _mpu_data.base_time);
 				_mpu_data.vyaw = (((_mpu_data.yaw - _mpu_data.lyaw)*_mpu_data.inv_time)/1000.0f); //d/s
 				_mpu_data.lyaw = _mpu_data.yaw;
 			}
-			
-			MPU_Get_Accelerometer(&_mpu_data.ax_s,&_mpu_data.ay_s,&_mpu_data.az_s);
-			_mpu_data.ax = (float)(_mpu_data.ax_s/2048.0f)*g*100; //cm/s2
-			_mpu_data.ax = (float)(_mpu_data.ay_s/2048.0f)*g*100; //cm/s2
-			_mpu_data.ax = (float)(_mpu_data.az_s/2048.0f)*g*100; //cm/s2
-			_mpu_data.temp = MPU_Get_Temperature();
 		}
 		else if(_mpu_data.first == 0)
 		{
@@ -229,9 +206,7 @@ void Update_MPU_Data(void)
 		else if(_mpu_data.first == 1&& HAL_GetTick()-_mpu_data.base_time >= 15000 )
 		{
 			mpu_dmp_get_data(&_mpu_data.pitch,&_mpu_data.roll,&_mpu_data.yaw);
-			_mpu_data.pitch_b = _mpu_data.pitch;
-			_mpu_data.roll_b = _mpu_data.roll;
-			_mpu_data.yaw_b = _mpu_data.yaw;
+			_mpu_data.yaw_b = -_mpu_data.yaw;
 			_mpu_data.first = 2;
 		}
 		

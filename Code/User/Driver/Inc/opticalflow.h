@@ -34,6 +34,10 @@ int16_t vy;
 int16_t x;
 
 int16_t y;
+	
+uint32_t last_time;
+uint32_t inv_time;
+	
 uint8_t qual;
 	
 }OPT_Data;

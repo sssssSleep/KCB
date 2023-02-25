@@ -281,10 +281,13 @@ void task5(uint16_t taskid)
 	fdata[0] = mpudata.pitch;
 	fdata[1] = mpudata.roll;
 	fdata[2] = mpudata.yaw;
+	fdata[3] = opt_data.x;
+	fdata[4] = opt_data.y;
+	fdata[5] = 
 	fdata[6] = opt_data.vy;
 	fdata[7] = opt_data.vx;
 	fdata[8] = opt_data.qual;
-	fdata[9] = get_hight();
+	fdata[9] = get_user_height();
 	print_data();
 
 }
@@ -298,7 +301,7 @@ void task6(uint16_t taskid)
 {
 	TaskDelay_ms(100);
 	Altimeter_Prase();
-	height = get_hight();
+	height = get_user_height();
 	//printf("vy = : %d  vx = : %d  qual = : %d\r\n",optdata.vy,optdata.vx,optdata.qual);
 	//user_spl0601_get();
 	//printf("task %x used %d ms\r\n",taskid,GetIntervalTime());

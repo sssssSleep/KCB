@@ -11,7 +11,7 @@ extern UART_HandleTypeDef huart6;
 void Altimeter_init();
 void Altimeter_Prase();
 
-float get_hight();
+float get_user_height();
 
 
 

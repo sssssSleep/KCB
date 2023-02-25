@@ -3,7 +3,8 @@
 
 
 
-float hight;
+float opt_height;
+float user_height;
 #if TF200F
 static uint8_t data[14];
 #endif
@@ -50,7 +51,8 @@ void Altimeter_Prase()
 					if(sum == data[s_i+6])
 					{
 						x = (data[s_i+4]<<8) | (data[s_i+5]<<0);							
-						hight = (float)x;
+						opt_height = (float)x - 7.5f;
+						user_height = (float)x - 21.5f;
 					}
 				}
 #endif
@@ -58,9 +60,9 @@ void Altimeter_Prase()
 
 
 
-float get_hight()
+float get_user_height()
 {
-	return hight;
+	return user_height;
 }
 //void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 //{

@@ -24,7 +24,7 @@ Vector2f opt_gyro_data;
 Vector2f opt_gyro_filter_data;
 Butter_Parameter OpticalFlow_Parameter,OpticalFlow_Gyro_Parameter;
 Butter_BufferData Buffer_OpticalFlow[2],Buffer_OpticalFlow_Gyro[2];
-extern float hight;
+extern float opt_height;
 //注释格式
 /***************************************************
 *@brief:  描述																				 
@@ -120,7 +120,9 @@ static uint8_t Optflow_Prase()//50hz
 				{
 					sum =_flow_data_buff[s_i+2]+_flow_data_buff[s_i+3]+_flow_data_buff[s_i+4]+_flow_data_buff[s_i+5]; 
 					if(sum ==_flow_data_buff[s_i+6])
-					{													
+					{				
+					opt_data.inv_time = HAL_GetTick() - opt_data.last_time;
+					opt_data.last_time = HAL_GetTick();				
           opt_origin_data.pixel_flow_y_integral=(int16_t)(_flow_data_buff[s_i+3]<<8)|_flow_data_buff[s_i+2];
           opt_origin_data.pixel_flow_x_integral=(int16_t)(_flow_data_buff[s_i+5]<<8)|_flow_data_buff[s_i+4];
           opt_origin_data.pixel_flow_x_integral*=(-1);
@@ -129,6 +131,7 @@ static uint8_t Optflow_Prase()//50hz
           //opt_origin_data.integration_timespan= (int16_t)(OpticalFlow_Ringbuf.Ring_Buff[i+7]<<8)|OpticalFlow_Ringbuf.Ring_Buff[i+6];
           opt_origin_data.qual=_flow_data_buff[s_i+7]; 
 					}
+				
         opt_filter_data.x=LPButterworth(opt_origin_data.pixel_flow_x_integral,&Buffer_OpticalFlow[0],&OpticalFlow_Parameter);
         opt_filter_data.y=LPButterworth(opt_origin_data.pixel_flow_y_integral,&Buffer_OpticalFlow[1],&OpticalFlow_Parameter);   
         //opt_data.x=(opt_origin_data.pixel_flow_x_integral*opticalflow_high)/10000.0f;//单位:乘以高度单位mm后为实际位移mm
@@ -141,8 +144,10 @@ static uint8_t Optflow_Prase()//50hz
         gyro_filter_data.y=LPButterworth(_mpu_data.vroll,&Buffer_OpticalFlow_Gyro[1],&OpticalFlow_Gyro_Parameter)/57.3f;//陀螺仪相位同步角速度
         opt_gyro_filter_data.x=OpticalFlow_Rotate_Complementary_Filter(opt_gyro_data.x,gyro_filter_data.x,'x');//光流角速度与陀螺仪角速度融合 
         opt_gyro_filter_data.y=OpticalFlow_Rotate_Complementary_Filter(opt_gyro_data.y,gyro_filter_data.y,'y'); //光流角速度与陀螺仪角速度融合 
-				//opt_data.vx = opt_gyro_filter_data.x * hight; // cm/s
-				//opt_data.vy = opt_gyro_filter_data.y * hight; // cm/s
+				opt_data.vx = opt_gyro_filter_data.x * opt_height; // cm/s
+				opt_data.vy = opt_gyro_filter_data.y * opt_height; // cm/s
+				opt_data.x = opt_data.vx * opt_data.inv_time;
+				opt_data.y = opt_data.vy * opt_data.inv_time;
         return 1;
       }
   return 0;
@@ -152,12 +157,12 @@ uint8_t Optflow_Is_Okay=0;
 void Optflow_Task(void)
 {
 
-	Vector2f SINS_Accel_Body;
+//	Vector2f SINS_Accel_Body;
   Optflow_Is_Okay=Optflow_Prase();
-	SINS_Accel_Body.x = -_mpu_data.ax;
-	SINS_Accel_Body.y = _mpu_data.ay;
-  //OpticalFlow_CF(spl_data.baro_height*10,SINS_Accel_Body,opt_gyro_filter_data);
-	OpticalFlow_CF(hight,SINS_Accel_Body,opt_gyro_filter_data);
+//	SINS_Accel_Body.x = -_mpu_data.ax;
+//	SINS_Accel_Body.y = _mpu_data.ay;
+//  //OpticalFlow_CF(spl_data.baro_height*10,SINS_Accel_Body,opt_gyro_filter_data);
+//	OpticalFlow_CF(hight,SINS_Accel_Body,opt_gyro_filter_data);
 	
 }
 

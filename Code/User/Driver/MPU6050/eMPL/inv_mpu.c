@@ -2961,7 +2961,7 @@ uint8_t run_self_test(void)
     // char test_packet[4] = {0};
     long gyro[3], accel[3];
     result = mpu_run_self_test(gyro, accel);
-    if (result == 0x7)
+    if (result == 0x3)
     {
         /* Test passed. We can trust the gyro data here, so let's push it down
          * to the DMP.
